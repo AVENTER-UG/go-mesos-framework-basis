@@ -11,7 +11,7 @@ export FRAMEWORK_NAME="test_framework"
 export MESOS_PRINCIPAL="<mesos_principal>"
 export MESOS_USERNAME="<mesos_user>"
 export MESOS_PASSWORD="<mesos_password>"
-export MESOS_MASTER="<mesos_master_server>"
+export MESOS_MASTER="<mesos_master_server>:5050"
 
 
 go run init.go app.go
