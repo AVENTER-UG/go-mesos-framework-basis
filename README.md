@@ -2,6 +2,10 @@
 
 Dies ist die Basis für Mesos Frameworks.
 
+## Vorraussetzung
+
+Dieses Basis Framework ist aktuell so erstellt, dass es MESOS mit SSL Verschlüsselung und Authentication benötigt.
+
 ## Framework starten
 
 ```Bash

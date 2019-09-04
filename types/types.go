@@ -21,5 +21,14 @@ type Config struct {
 	EnableSyslog      bool
 	Hostname          string
 	Listen            string
-	CommandChan       chan string
+	CommandChan       chan Command
+}
+
+type Command struct {
+	Container   bool                          `json:"container,omitempty"`
+	Command     string                        `json:"command,omitempty"`
+	Shell       bool                          `protobuf:"varint,6,opt,name=shell,def=1" json:"shell,omitempty"`
+	Uris        []*mesosproto.CommandInfo_URI `protobuf:"bytes,1,rep,name=uris" json:"uris,omitempty"`
+	Environment []*mesosproto.Environment     `protobuf:"bytes,2,opt,name=environment" json:"environment,omitempty"`
+	Arguments   []string                      `protobuf:"bytes,7,rep,name=arguments" json:"arguments,omitempty"`
 }

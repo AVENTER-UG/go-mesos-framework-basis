@@ -7,6 +7,7 @@ import (
 
 	"./api"
 	"./mesos"
+	cfg "./types"
 
 	util "git.aventer.biz/AVENTER/util"
 	"github.com/Showmax/go-fqdn"
@@ -35,7 +36,7 @@ func main() {
 	config.FrameworkInfo.FailoverTimeout = &failoverTimeout
 	config.FrameworkInfo.Checkpoint = &checkpoint
 	config.FrameworkInfo.Principal = &config.Principal
-	config.CommandChan = make(chan string, 100)
+	config.CommandChan = make(chan cfg.Command, 100)
 
 	util.SetLogging(config.LogLevel, config.EnableSyslog, config.AppName)
 

@@ -6,7 +6,6 @@ import (
 	"crypto/tls"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"os"
 	"strconv"
@@ -41,7 +40,7 @@ func Subscribe() error {
 		Subscribe: &mesosproto.Call_Subscribe{FrameworkInfo: &config.FrameworkInfo},
 	}
 	body, _ := marshaller.MarshalToString(subscribeCall)
-	log.Print(body)
+	logrus.Debug(body)
 	client := &http.Client{}
 	client.Transport = &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
@@ -71,17 +70,17 @@ func Subscribe() error {
 
 		var event mesosproto.Event
 		jsonpb.UnmarshalString(data, &event)
-		log.Printf("Got: [%s]", event.String())
+		logrus.Debug("Subscribe Got: ", event.String())
 
 		switch *event.Type {
 		case mesosproto.Event_SUBSCRIBED:
-			log.Print("Subscribed")
+			logrus.Info("Subscribed")
 			config.FrameworkInfo.Id = event.Subscribed.FrameworkId
 			config.MesosStreamID = res.Header.Get("Mesos-Stream-Id")
 		case mesosproto.Event_HEARTBEAT:
-			log.Print("PING")
+			logrus.Info("Heartbeat")
 		case mesosproto.Event_OFFERS:
-			log.Printf("Handle offers returns: %v", HandleOffers(event.Offers))
+			logrus.Info("Offers Returns: ", HandleOffers(event.Offers))
 		}
 	}
 }
@@ -95,6 +94,9 @@ func Call(message *mesosproto.Call) error {
 	client.Transport = &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
+
+	logrus.Debug("Call: ", body)
+
 	req, _ := http.NewRequest("POST", "https://"+config.MesosMasterServer+"/api/v1/scheduler", bytes.NewBuffer([]byte(body)))
 	req.SetBasicAuth(config.Username, config.Password)
 	req.Header.Set("Mesos-Stream-Id", config.MesosStreamID)

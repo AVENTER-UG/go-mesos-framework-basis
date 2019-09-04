@@ -21,7 +21,8 @@ func SetConfig(cfg *cfg.Config) {
 // Commands is the main function of this package
 func Commands() *mux.Router {
 	rtr := mux.NewRouter()
-	rtr.HandleFunc("/test/", V0Test).Methods("POST")
+	rtr.HandleFunc("/v0/cmd/start", V0StartCommand).Methods("POST")
+	rtr.HandleFunc("/v0/container/start", V0StartContainer).Methods("POST")
 
 	return rtr
 }
