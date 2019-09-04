@@ -11,7 +11,21 @@ import (
 
 // V0StartContainer will start a simple predefined mesos container
 // example:
-// curl -X POST 127.0.0.1:10000/v0/container/start
+// curl -X POST 127.0.0.1:10000/v0/container/start -d 'JSON'
+/*
+{
+  "Command": "./download",
+  "Uris": [
+    {
+      "Value": "https://<BINFILE>",
+      "Extract": "false",
+      "Executable": "true",
+      "Cache": "false",
+      "OutputFile": "RUNME"
+    }
+  ]
+}
+*/
 func V0StartContainer(w http.ResponseWriter, r *http.Request) {
 	var cmd cfg.Command
 	err := json.NewDecoder(r.Body).Decode(&cmd)
@@ -21,7 +35,7 @@ func V0StartContainer(w http.ResponseWriter, r *http.Request) {
 	}
 
 	cmd.Container = true
-	cmd.Shell = false
+	cmd.Shell = true
 
 	d, _ := json.Marshal(&cmd)
 	logrus.Debug("Start Container: ", string(d))

@@ -1,7 +1,6 @@
 package mesos
 
 import (
-	"encoding/json"
 	"fmt"
 	"sync/atomic"
 
@@ -40,9 +39,6 @@ func HandleOffers(offers *mesosproto.Event_Offers) error {
 	case cmd := <-config.CommandChan:
 		firstOffer := offers.Offers[0]
 
-		d, _ := json.Marshal(&cmd.Uris)
-		logrus.Debug("A: ", string(d))
-
 		newTaskID := fmt.Sprint(atomic.AddUint64(&config.TaskID, 1))
 		taskInfo := []*mesosproto.TaskInfo{{
 			Name: &cmd.Command,
@@ -52,9 +48,10 @@ func HandleOffers(offers *mesosproto.Event_Offers) error {
 			AgentId:   firstOffer.AgentId,
 			Resources: defaultResources(),
 			Command: &mesosproto.CommandInfo{
-				Shell: &cmd.Shell,
-				Value: &cmd.Command,
-				Uris:  cmd.Uris,
+				Shell:       &cmd.Shell,
+				Value:       &cmd.Command,
+				Uris:        cmd.Uris,
+				Environment: &cmd.Environment,
 			}}}
 
 		logrus.Debug("HandleOffers cmd: ", taskInfo)
