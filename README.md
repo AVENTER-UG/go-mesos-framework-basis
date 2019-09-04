@@ -25,10 +25,18 @@ Dies startet das Framework. Es wird sich an den Mesos Master anmelden. Nach weni
 
 ## Task Starten
 
-Das Basis Framework kann zur Demonstation einen Task starten. Dies erfolgt über folgenden Aufruf.
+### Command
 
 ```Bash
-curl -X POST 127.0.0.1:10000/test/\?cmd\=python%20-m%20SimpleHTTPServer%209033
+curl -X POST 127.0.0.1:10000/v0/command/start\?cmd\=python%20-m%20SimpleHTTPServer%209033
+```
+
+### Mesos Container
+
+Um einen Mesos Container zu starten, muss man der nachfolgenden Aufruf angepasst werden. "Value" bekommt dabei eine URL von dem aus ein Binary heruntergeladen wird. Das Binary wird dann, über "Command" aufgerufen.
+
+```Bash
+ curl -X POST 127.0.0.1:10000/v0/container/start -d '{ "command": "./test", "uris": [{ "value": "https://<URL>/test", "extract": false, "executable": true, "cache": false }]}'
 ```
 
 Auf einem Mesos Agent wird man nun einen entsprechenden Prozess erkennen können.
