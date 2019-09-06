@@ -1,9 +1,6 @@
 package mesos
 
 import (
-	"fmt"
-	"sync/atomic"
-
 	"github.com/sirupsen/logrus"
 
 	"../proto"
@@ -39,20 +36,16 @@ func HandleOffers(offers *mesosproto.Event_Offers) error {
 	case cmd := <-config.CommandChan:
 		firstOffer := offers.Offers[0]
 
-		newTaskID := fmt.Sprint(atomic.AddUint64(&config.TaskID, 1))
-		taskInfo := []*mesosproto.TaskInfo{{
-			Name: &cmd.Command,
-			TaskId: &mesosproto.TaskID{
-				Value: &newTaskID,
-			},
-			AgentId:   firstOffer.AgentId,
-			Resources: defaultResources(),
-			Command: &mesosproto.CommandInfo{
-				Shell:       &cmd.Shell,
-				Value:       &cmd.Command,
-				Uris:        cmd.Uris,
-				Environment: &cmd.Environment,
-			}}}
+		var taskInfo []*mesosproto.TaskInfo
+
+		switch cmd.ContainerType {
+		case "NONE":
+			taskInfo, _ = prepareTaskInfoExecuteCommand(firstOffer.AgentId, cmd)
+		case "MESOS":
+			taskInfo, _ = prepareTaskInfoExecuteContainer(firstOffer.AgentId, cmd)
+		case "DOCKER":
+			taskInfo, _ = prepareTaskInfoExecuteContainer(firstOffer.AgentId, cmd)
+		}
 
 		logrus.Debug("HandleOffers cmd: ", taskInfo)
 

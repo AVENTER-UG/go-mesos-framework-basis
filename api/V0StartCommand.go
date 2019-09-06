@@ -13,8 +13,9 @@ import (
 func V0StartCommand(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	var cmd cfg.Command
-	cmd.Container = false
 	cmd.Command = r.Form["cmd"][0]
+	cmd.TaskName = r.Form["name"][0]
+	cmd.ContainerType = "NONE"
 
 	if r.Form["shell"][0] == "true" {
 		cmd.Shell = true
