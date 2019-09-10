@@ -30,11 +30,17 @@ func prepareTaskInfoExecuteContainer(agent *mesosproto.AgentID, cmd cfg.Command)
 	newTaskID, _ := util.GenUUID()
 
 	networkIsolator := "weave"
+
 	contype := mesosproto.ContainerInfo_DOCKER.Enum()
 
 	if cmd.ContainerType == "MESOS" {
 		contype = mesosproto.ContainerInfo_MESOS.Enum()
 	}
+
+	// Save state of the task
+	state := config.State[newTaskID]
+	state.Command = cmd
+	config.State[newTaskID] = state
 
 	return []*mesosproto.TaskInfo{{
 		Name: &cmd.TaskName,

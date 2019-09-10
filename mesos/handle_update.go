@@ -7,9 +7,17 @@ import (
 )
 
 // HandleUpdate will handle the offers event of mesos
-func HandleUpdate(event *mesosproto.Event_Update) error {
+func HandleUpdate(event *mesosproto.Event) error {
 
-	logrus.Debug("HandleUpate cmd: ", event)
+	taskStatus := event.GetUpdate().GetStatus()
+
+	taskID := *taskStatus.TaskId.Value
+
+	state := config.State[taskID]
+	state.Status = taskStatus.GetState().String()
+	config.State[taskID] = state
+
+	logrus.Debug("HandleUpate cmd: ", state)
 
 	return nil
 

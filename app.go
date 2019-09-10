@@ -44,6 +44,8 @@ func main() {
 
 	util.SetLogging(config.LogLevel, config.EnableSyslog, config.AppName)
 
+	config.State = map[string]cfg.State{}
+
 	mesos.SetConfig(&config)
 	api.SetConfig(&config)
 

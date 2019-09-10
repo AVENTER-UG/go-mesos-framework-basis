@@ -78,7 +78,7 @@ func Subscribe() error {
 			config.FrameworkInfo.Id = event.Subscribed.FrameworkId
 			config.MesosStreamID = res.Header.Get("Mesos-Stream-Id")
 		case mesosproto.Event_UPDATE:
-			logrus.Info("Update", HandleUpdate(event.Update))
+			logrus.Info("Update", HandleUpdate(&event))
 		case mesosproto.Event_HEARTBEAT:
 			logrus.Info("Heartbeat")
 		case mesosproto.Event_OFFERS:
