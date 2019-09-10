@@ -29,6 +29,13 @@ func prepareTaskInfoExecuteCommand(agent *mesosproto.AgentID, cmd cfg.Command) (
 func prepareTaskInfoExecuteContainer(agent *mesosproto.AgentID, cmd cfg.Command) ([]*mesosproto.TaskInfo, error) {
 	newTaskID, _ := util.GenUUID()
 
+	networkIsolator := "weave"
+	contype := mesosproto.ContainerInfo_DOCKER.Enum()
+
+	if cmd.ContainerType == "MESOS" {
+		contype = mesosproto.ContainerInfo_MESOS.Enum()
+	}
+
 	return []*mesosproto.TaskInfo{{
 		Name: &cmd.TaskName,
 		TaskId: &mesosproto.TaskID{
@@ -36,30 +43,13 @@ func prepareTaskInfoExecuteContainer(agent *mesosproto.AgentID, cmd cfg.Command)
 		},
 		AgentId:   agent,
 		Resources: defaultResources(),
-		Executor:  prepareExecuteInfoDockerContainer(cmd),
-	}}, nil
-}
-
-func prepareExecuteInfoDockerContainer(cmd cfg.Command) *mesosproto.ExecutorInfo {
-
-	networkIsolator := "weave"
-	//networkHostname := "testhostname"
-
-	newExecutorID, _ := util.GenUUID()
-
-	return &mesosproto.ExecutorInfo{
-		Type: mesosproto.ExecutorInfo_CUSTOM.Enum(),
-		ExecutorId: &mesosproto.ExecutorID{
-			Value: &newExecutorID,
-		},
-		Name: &cmd.TaskName,
 		Command: &mesosproto.CommandInfo{
 			Shell: &cmd.Shell,
 			Value: &cmd.Command,
 			Uris:  cmd.Uris,
 		},
 		Container: &mesosproto.ContainerInfo{
-			Type: mesosproto.ContainerInfo_DOCKER.Enum(),
+			Type: contype,
 			Docker: &mesosproto.ContainerInfo_DockerInfo{
 				Image: &cmd.ContainerImage,
 			},
@@ -67,35 +57,5 @@ func prepareExecuteInfoDockerContainer(cmd cfg.Command) *mesosproto.ExecutorInfo
 				Name: &networkIsolator,
 			}},
 		},
-		Resources: defaultResources(),
-	}
-}
-
-func prepareExecuteInfoMesosContainer(cmd cfg.Command) *mesosproto.ExecutorInfo {
-
-	networkIsolator := "weave"
-	//networkHostname := "testhostname"
-
-	newExecutorId := "default"
-
-	return &mesosproto.ExecutorInfo{
-		Type: mesosproto.ExecutorInfo_CUSTOM.Enum(),
-		ExecutorId: &mesosproto.ExecutorID{
-			Value: &newExecutorId,
-		},
-		Name: &cmd.TaskName,
-		Command: &mesosproto.CommandInfo{
-			Shell: &cmd.Shell,
-			Value: &cmd.Command,
-			Uris:  cmd.Uris,
-		},
-		Container: &mesosproto.ContainerInfo{
-			Type:  mesosproto.ContainerInfo_MESOS.Enum(),
-			Mesos: &mesosproto.ContainerInfo_MesosInfo{},
-			NetworkInfos: []*mesosproto.NetworkInfo{{
-				Name: &networkIsolator,
-			}},
-		},
-		Resources: defaultResources(),
-	}
+	}}, nil
 }
