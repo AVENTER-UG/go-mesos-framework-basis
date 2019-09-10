@@ -1,16 +1,14 @@
 package mesos
 
 import (
-	"fmt"
-	"sync/atomic"
-
 	"../proto"
 	cfg "../types"
+	"git.aventer.biz/AVENTER/util"
 )
 
 func prepareTaskInfoExecuteCommand(agent *mesosproto.AgentID, cmd cfg.Command) ([]*mesosproto.TaskInfo, error) {
 
-	newTaskID := fmt.Sprint(atomic.AddUint64(&config.TaskID, 1))
+	newTaskID, _ := util.GenUUID()
 
 	return []*mesosproto.TaskInfo{{
 		Name: &cmd.TaskName,
@@ -29,8 +27,7 @@ func prepareTaskInfoExecuteCommand(agent *mesosproto.AgentID, cmd cfg.Command) (
 }
 
 func prepareTaskInfoExecuteContainer(agent *mesosproto.AgentID, cmd cfg.Command) ([]*mesosproto.TaskInfo, error) {
-
-	newTaskID := fmt.Sprint(atomic.AddUint64(&config.TaskID, 1))
+	newTaskID, _ := util.GenUUID()
 
 	return []*mesosproto.TaskInfo{{
 		Name: &cmd.TaskName,
@@ -48,12 +45,12 @@ func prepareExecuteInfoDockerContainer(cmd cfg.Command) *mesosproto.ExecutorInfo
 	networkIsolator := "weave"
 	//networkHostname := "testhostname"
 
-	newExecutorId := "default"
+	newExecutorID, _ := util.GenUUID()
 
 	return &mesosproto.ExecutorInfo{
 		Type: mesosproto.ExecutorInfo_CUSTOM.Enum(),
 		ExecutorId: &mesosproto.ExecutorID{
-			Value: &newExecutorId,
+			Value: &newExecutorID,
 		},
 		Name: &cmd.TaskName,
 		Command: &mesosproto.CommandInfo{
@@ -64,8 +61,7 @@ func prepareExecuteInfoDockerContainer(cmd cfg.Command) *mesosproto.ExecutorInfo
 		Container: &mesosproto.ContainerInfo{
 			Type: mesosproto.ContainerInfo_DOCKER.Enum(),
 			Docker: &mesosproto.ContainerInfo_DockerInfo{
-				Image:   &cmd.ContainerImage,
-				Network: mesosproto.ContainerInfo_DockerInfo_BRIDGE.Enum(),
+				Image: &cmd.ContainerImage,
 			},
 			NetworkInfos: []*mesosproto.NetworkInfo{{
 				Name: &networkIsolator,

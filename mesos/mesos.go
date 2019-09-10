@@ -45,7 +45,7 @@ func Subscribe() error {
 	client.Transport = &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
-	req, _ := http.NewRequest("POST", "https://"+config.MesosMasterServer+"/api/v1/scheduler", bytes.NewBuffer([]byte(body)))
+	req, _ := http.NewRequest("POST", "http://"+config.MesosMasterServer+"/api/v1/scheduler", bytes.NewBuffer([]byte(body)))
 	req.SetBasicAuth(config.Username, config.Password)
 	req.Header.Set("Content-Type", "application/json")
 	res, err := client.Do(req)
@@ -77,10 +77,14 @@ func Subscribe() error {
 			logrus.Info("Subscribed")
 			config.FrameworkInfo.Id = event.Subscribed.FrameworkId
 			config.MesosStreamID = res.Header.Get("Mesos-Stream-Id")
+		case mesosproto.Event_UPDATE:
+			logrus.Info("Update", HandleUpdate(event.Update))
 		case mesosproto.Event_HEARTBEAT:
 			logrus.Info("Heartbeat")
 		case mesosproto.Event_OFFERS:
 			logrus.Info("Offers Returns: ", HandleOffers(event.Offers))
+		default:
+			logrus.Info("DEFAULT EVENT: ", event.Offers)
 		}
 	}
 }
@@ -97,7 +101,7 @@ func Call(message *mesosproto.Call) error {
 
 	logrus.Debug("Call: ", body)
 
-	req, _ := http.NewRequest("POST", "https://"+config.MesosMasterServer+"/api/v1/scheduler", bytes.NewBuffer([]byte(body)))
+	req, _ := http.NewRequest("POST", "http://"+config.MesosMasterServer+"/api/v1/scheduler", bytes.NewBuffer([]byte(body)))
 	req.SetBasicAuth(config.Username, config.Password)
 	req.Header.Set("Mesos-Stream-Id", config.MesosStreamID)
 	req.Header.Set("Content-Type", "application/json")
@@ -108,9 +112,12 @@ func Call(message *mesosproto.Call) error {
 	}
 
 	defer res.Body.Close()
+
+	io.Copy(os.Stderr, res.Body)
+
 	if res.StatusCode != 202 {
-		io.Copy(os.Stderr, res.Body)
 		return fmt.Errorf("Error %d", res.StatusCode)
 	}
-	return nil
+
+	return fmt.Errorf("Offer Accept %d", res.StatusCode)
 }

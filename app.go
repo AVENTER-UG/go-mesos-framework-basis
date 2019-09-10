@@ -7,6 +7,7 @@ import (
 
 	"./api"
 	"./mesos"
+	"./proto"
 	cfg "./types"
 
 	util "git.aventer.biz/AVENTER/util"
@@ -36,6 +37,9 @@ func main() {
 	config.FrameworkInfo.FailoverTimeout = &failoverTimeout
 	config.FrameworkInfo.Checkpoint = &checkpoint
 	config.FrameworkInfo.Principal = &config.Principal
+	config.FrameworkInfo.Capabilities = []*mesosproto.FrameworkInfo_Capability{
+		{Type: mesosproto.FrameworkInfo_Capability_RESERVATION_REFINEMENT.Enum()},
+	}
 	config.CommandChan = make(chan cfg.Command, 100)
 
 	util.SetLogging(config.LogLevel, config.EnableSyslog, config.AppName)

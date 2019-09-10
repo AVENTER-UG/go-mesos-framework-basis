@@ -22,7 +22,7 @@ package mesos.v1;
 
 option java_package = "org.apache.mesos.v1.scheduler";
 option java_outer_classname = "Protos";
-option go_package = "main";
+option go_package = "mesosproto";
 
 
 /**

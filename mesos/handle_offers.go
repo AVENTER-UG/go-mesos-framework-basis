@@ -10,6 +10,7 @@ func defaultResources() []*mesosproto.Resource {
 	CPU := "cpus"
 	MEM := "mem"
 	cpu := float64(0.1)
+	mem := float64(32)
 
 	return []*mesosproto.Resource{
 		{
@@ -20,7 +21,7 @@ func defaultResources() []*mesosproto.Resource {
 		{
 			Name:   &MEM,
 			Type:   mesosproto.Value_SCALAR.Enum(),
-			Scalar: &mesosproto.Value_Scalar{Value: &cpu},
+			Scalar: &mesosproto.Value_Scalar{Value: &mem},
 		},
 	}
 }
@@ -35,6 +36,7 @@ func HandleOffers(offers *mesosproto.Event_Offers) error {
 	select {
 	case cmd := <-config.CommandChan:
 		firstOffer := offers.Offers[0]
+		refuseSeconds := float64(5)
 
 		var taskInfo []*mesosproto.TaskInfo
 
@@ -53,6 +55,9 @@ func HandleOffers(offers *mesosproto.Event_Offers) error {
 			Type: mesosproto.Call_ACCEPT.Enum(),
 			Accept: &mesosproto.Call_Accept{
 				OfferIds: offerIds,
+				Filters: &mesosproto.Filters{
+					RefuseSeconds: &refuseSeconds,
+				},
 				Operations: []*mesosproto.Offer_Operation{{
 					Type: mesosproto.Offer_Operation_LAUNCH.Enum(),
 					Launch: &mesosproto.Offer_Operation_Launch{
