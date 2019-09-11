@@ -33,10 +33,6 @@ func prepareTaskInfoExecuteContainer(agent *mesosproto.AgentID, cmd cfg.Command)
 
 	contype := mesosproto.ContainerInfo_DOCKER.Enum()
 
-	if cmd.ContainerType == "MESOS" {
-		contype = mesosproto.ContainerInfo_MESOS.Enum()
-	}
-
 	// Save state of the task
 	state := config.State[newTaskID]
 	state.Command = cmd
@@ -57,7 +53,8 @@ func prepareTaskInfoExecuteContainer(agent *mesosproto.AgentID, cmd cfg.Command)
 		Container: &mesosproto.ContainerInfo{
 			Type: contype,
 			Docker: &mesosproto.ContainerInfo_DockerInfo{
-				Image: &cmd.ContainerImage,
+				Image:   &cmd.ContainerImage,
+				Network: mesosproto.ContainerInfo_DockerInfo_BRIDGE.Enum(),
 			},
 			NetworkInfos: []*mesosproto.NetworkInfo{{
 				Name: &networkIsolator,
